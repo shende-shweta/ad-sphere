@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+
+# Merges META-INF/spring.factories from a set of jars into a single properties file.
+# Needed because Bazel's deploy jar keeps only the first copy of duplicate resources,
+# which would silently drop most Spring Boot auto-configurations.
+java_binary(
+    name = "merger",
+    srcs = ["SpringFactoriesMerger.java"],
+    main_class = "tools.springfactories.SpringFactoriesMerger",
+    visibility = ["//visibility:public"],
+)

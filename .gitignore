@@ -1,0 +1,22 @@
+# Bazel output symlinks (Maven deps and build outputs live in the Bazel cache)
+/bazel-*
+
+# Frontend
+node_modules/
+dist/
+*.local
+
+# Java / IDE
+*.class
+target/
+out/
+.idea/
+*.iml
+.vscode/
+
+# Environment and logs
+.env
+*.log
+
+# OS
+.DS_Store

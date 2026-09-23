@@ -1,0 +1,47 @@
+load("@rules_java//java:defs.bzl", "java_import")
+
+# Builds the React app with Vite and packages it as `static/**` inside a jar so Spring Boot serves
+# it from the classpath. Uses the host's Node.js/npm (>= 18), hence `--config=ui` in .bazelrc to
+# pass PATH through, and network access for `npm ci`.
+genrule(
+    name = "ui_jar",
+    srcs = glob(
+        [
+            "src/**",
+            "public/**",
+        ],
+        exclude = ["src/__tests__/**"],
+    ) + [
+        "index.html",
+        "package.json",
+        "package-lock.json",
+        "vite.config.js",
+    ],
+    outs = ["ui.jar"],
+    cmd = """
+set -euo pipefail
+ROOT="$$PWD"
+WORK="$$(mktemp -d)"
+trap 'rm -rf "$$WORK"' EXIT
+cp -rL frontend "$$WORK/app"
+cd "$$WORK/app"
+npm ci --no-audit --no-fund --loglevel=error
+VITE_OUT_DIR="$$WORK/static" npx vite build --logLevel warn
+cd "$$WORK"
+"$$ROOT/$(JAVABASE)/bin/jar" cf "$$ROOT/$@" static
+""",
+    tags = [
+        "manual",
+        "no-remote",
+        "no-sandbox",
+        "requires-network",
+    ],
+    toolchains = ["@bazel_tools//tools/jdk:current_java_runtime"],
+)
+
+java_import(
+    name = "ui",
+    jars = [":ui.jar"],
+    tags = ["manual"],
+    visibility = ["//backend:__pkg__"],
+)

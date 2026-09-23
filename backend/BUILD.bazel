@@ -1,0 +1,144 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+load("//tools/springfactories:defs.bzl", "merged_spring_factories")
+
+package(default_visibility = ["//visibility:private"])
+
+COMPILE_DEPS = [
+    "@maven//:com_fasterxml_jackson_core_jackson_databind",
+    "@maven//:io_jsonwebtoken_jjwt",
+    "@maven//:javax_persistence_javax_persistence_api",
+    "@maven//:javax_validation_validation_api",
+    "@maven//:org_apache_tomcat_embed_tomcat_embed_core",
+    "@maven//:org_slf4j_slf4j_api",
+    "@maven//:org_springframework_boot_spring_boot",
+    "@maven//:org_springframework_boot_spring_boot_autoconfigure",
+    "@maven//:org_springframework_data_spring_data_commons",
+    "@maven//:org_springframework_data_spring_data_jpa",
+    "@maven//:org_springframework_security_spring_security_config",
+    "@maven//:org_springframework_security_spring_security_core",
+    "@maven//:org_springframework_security_spring_security_web",
+    "@maven//:org_springframework_spring_beans",
+    "@maven//:org_springframework_spring_context",
+    "@maven//:org_springframework_spring_core",
+    "@maven//:org_springframework_spring_tx",
+    "@maven//:org_springframework_spring_web",
+    "@maven//:org_springframework_spring_webmvc",
+]
+
+RUNTIME_DEPS = [
+    "@maven//:com_h2database_h2",
+    "@maven//:javax_xml_bind_jaxb_api",
+    "@maven//:net_bytebuddy_byte_buddy",
+    "@maven//:org_springframework_boot_spring_boot_starter_actuator",
+    "@maven//:org_springframework_boot_spring_boot_starter_data_jpa",
+    "@maven//:org_springframework_boot_spring_boot_starter_security",
+    "@maven//:org_springframework_boot_spring_boot_starter_validation",
+    "@maven//:org_springframework_boot_spring_boot_starter_web",
+]
+
+# Spring (CGLIB, Hibernate proxies) still reflects into java.lang on JDK 17+.
+JVM_FLAGS = [
+    "--add-opens=java.base/java.lang=ALL-UNNAMED",
+    "--add-opens=java.base/java.util=ALL-UNNAMED",
+    "-Dnet.bytebuddy.experimental=true",
+]
+
+java_library(
+    name = "lib",
+    srcs = glob(["src/main/java/**/*.java"]),
+    resource_strip_prefix = "backend/src/main/resources",
+    resources = glob(["src/main/resources/**"]),
+    runtime_deps = RUNTIME_DEPS,
+    deps = COMPILE_DEPS,
+)
+
+# Development server: `bazel run //backend:app`
+java_binary(
+    name = "app",
+    jvm_flags = JVM_FLAGS,
+    main_class = "com.adsphere.AdSphereApplication",
+    runtime_deps = [":lib"],
+)
+
+merged_spring_factories(
+    name = "spring_factories",
+    deps = [":lib"],
+)
+
+java_library(
+    name = "spring_factories_resource",
+    resource_strip_prefix = package_name() + "/spring_factories",
+    resources = [":spring_factories"],
+)
+
+# Deployable fat jar: `bazel build //backend:server_deploy.jar`
+# The merged spring.factories comes first on the classpath so it wins over the per-jar copies,
+# which the deploy jar otherwise de-duplicates by keeping only the first one.
+java_binary(
+    name = "server",
+    jvm_flags = JVM_FLAGS,
+    main_class = "com.adsphere.AdSphereApplication",
+    runtime_deps = [
+        ":spring_factories_resource",
+        ":lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+java_library(
+    name = "test_support",
+    testonly = True,
+    srcs = glob(
+        ["src/test/java/**/*.java"],
+        exclude = ["src/test/java/**/*Test.java"],
+    ),
+    deps = COMPILE_DEPS + [
+        "@maven//:org_springframework_spring_test",
+    ],
+)
+
+TEST_DEPS = COMPILE_DEPS + [
+    ":lib",
+    ":test_support",
+    "@maven//:junit_junit",
+    "@maven//:org_hamcrest_hamcrest_core",
+    "@maven//:org_hamcrest_hamcrest_library",
+    "@maven//:org_springframework_boot_spring_boot_test",
+    "@maven//:org_springframework_boot_spring_boot_test_autoconfigure",
+    "@maven//:org_springframework_security_spring_security_test",
+    "@maven//:org_springframework_spring_test",
+]
+
+TEST_RUNTIME_DEPS = [
+    "@maven//:com_jayway_jsonpath_json_path",
+    "@maven//:org_springframework_boot_spring_boot_starter_test",
+]
+
+[
+    java_test(
+        name = src[len("src/test/java/com/adsphere/"):-len(".java")].replace("/", "_"),
+        size = "medium",
+        # Each test class runs in its own JVM with a fresh in-memory database.
+        srcs = [src],
+        jvm_flags = JVM_FLAGS,
+        test_class = src[len("src/test/java/"):-len(".java")].replace("/", "."),
+        runtime_deps = TEST_RUNTIME_DEPS,
+        deps = TEST_DEPS,
+    )
+    for src in glob(["src/test/java/**/*Test.java"])
+]
+
+# Single deployable jar with the React UI bundled under classpath:/static:
+#   bazel build --config=ui //backend:server_with_ui_deploy.jar
+java_binary(
+    name = "server_with_ui",
+    jvm_flags = JVM_FLAGS,
+    main_class = "com.adsphere.AdSphereApplication",
+    tags = ["manual"],
+    runtime_deps = [
+        ":spring_factories_resource",
+        ":lib",
+        "//frontend:ui",
+    ],
+    visibility = ["//visibility:public"],
+)
