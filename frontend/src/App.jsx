@@ -9,6 +9,7 @@ import CampaignFormPage from './pages/campaigns/CampaignFormPage.jsx';
 import CampaignDetailPage from './pages/campaigns/CampaignDetailPage.jsx';
 import PlacementFormPage from './pages/placements/PlacementFormPage.jsx';
 import AudienceListPage from './pages/audience/AudienceListPage.jsx';
+import AudienceFormPage from './pages/audience/AudienceFormPage.jsx';
 import InventoryListPage from './pages/inventory/InventoryListPage.jsx';
 import SettingsPage from './pages/settings/SettingsPage.jsx';
 import SettingsSectionPage from './pages/settings/SettingsSectionPage.jsx';
@@ -62,6 +63,22 @@ export default function App() {
           }
         />
         <Route path="audience" element={<AudienceListPage />} />
+        <Route
+          path="audience/new"
+          element={
+            <RequireAuth roles={EDIT_ROLES}>
+              <AudienceFormPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="audience/:id/edit"
+          element={
+            <RequireAuth roles={EDIT_ROLES}>
+              <AudienceFormPage />
+            </RequireAuth>
+          }
+        />
         <Route path="inventory" element={<InventoryListPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="settings/:section" element={<SettingsSectionPage />} />

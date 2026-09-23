@@ -24,6 +24,9 @@ export const placementApi = {
 
 export const audienceApi = {
   list: (params, signal) => api.get('/api/audiences', params, signal),
+  get: (id) => api.get(`/api/audiences/${id}`),
+  create: (body) => api.post('/api/audiences', body),
+  update: (id, body) => api.put(`/api/audiences/${id}`, body),
   setStatus: (id, status) => api.patch(`/api/audiences/${id}/status`, { status }),
 };
 
