@@ -22,7 +22,7 @@ segments, and bid on publisher inventory.
 - **Create Placement form**: country, audience group, video targeting, traffic (App/Website), ad
   position, deal type, frequency cap, device targeting, ad format and notes.
 - **Audience**: segment list with search and type/status filters. Admins can activate or deactivate
-  a segment.
+  a segment. Admins and Managers can **create** and **edit** audience segments.
 - **Inventory**: deal list with search and filters. Place a CPM bid against a campaign. A bid at or
   above the floor price wins right away: the deal is marked **Sold** and that campaign's ads serve
   on it. A bid below the floor is recorded as rejected.
@@ -124,7 +124,7 @@ docker run -p 8080:8080 --env-file deploy/.env adsphere   # see deploy/.env.exam
 | Variable                     | Default                         | Purpose                               |
 | ---------------------------- | ------------------------------- | ------------------------------------- |
 | `PORT`                       | `8080`                          | HTTP port                             |
-| `APP_JWT_SECRET`             | dev-only value                  | **Set in every real environment** (≥ 32 chars) |
+| `APP_JWT_SECRET`             | dev-only value                  | **Set in every real environment** (>= 32 chars) |
 | `APP_JWT_EXPIRATION_MINUTES` | `60`                            | Token lifetime                        |
 | `APP_CORS_ALLOWED_ORIGINS`   | `http://localhost:5173`         | Comma-separated origins for cross-origin UI hosting |
 | `APP_SEED_ENABLED`           | `true`                          | Seed demo data into an empty database |
@@ -139,7 +139,7 @@ All endpoints except `POST /api/auth/login` and `GET /actuator/health` require
 
 | Method | Path                         | Notes                                                       |
 | ------ | ---------------------------- | ----------------------------------------------------------- |
-| POST   | `/api/auth/login`            | `{ username, password }` → `{ token, expiresAt, user }`     |
+| POST   | `/api/auth/login`            | `{ username, password }` -> `{ token, expiresAt, user }`    |
 | GET    | `/api/auth/me`               | Current user                                                |
 | GET    | `/api/campaigns`             | `status, objective, name, from, to, page, size, sort`       |
 | GET    | `/api/campaigns/{id}`        |                                                             |
@@ -149,6 +149,9 @@ All endpoints except `POST /api/auth/login` and `GET /actuator/health` require
 | GET    | `/api/placements`            | `q, page, size`                                             |
 | POST   | `/api/placements`            | ADMIN/MANAGER                                               |
 | GET    | `/api/audiences`             | `q, type, status, page, size`                               |
+| GET    | `/api/audiences/{id}`        | Includes `version`, `placementCount`, `createdAt`, `updatedAt` |
+| POST   | `/api/audiences`             | ADMIN/MANAGER; 201 + Location header                        |
+| PUT    | `/api/audiences/{id}`        | ADMIN/MANAGER; `version` required for optimistic locking    |
 | PATCH  | `/api/audiences/{id}/status` | ADMIN; `{ status }`                                         |
 | GET    | `/api/deals`                 | `q, type, status, page, size`                               |
 | POST   | `/api/deals/{id}/bids`       | ADMIN/MANAGER; `{ amount, campaignId }`                     |
