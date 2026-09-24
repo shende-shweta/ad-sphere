@@ -97,6 +97,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .hasRole("ADMIN")
         .antMatchers(HttpMethod.PATCH, "/api/audiences/**")
         .hasRole("ADMIN")
+        .antMatchers(HttpMethod.GET, "/api/activity/**")
+        .authenticated()
         .antMatchers("/api/**")
         .authenticated()
         // Static frontend assets (when bundled into the jar).

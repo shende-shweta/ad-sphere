@@ -1,5 +1,6 @@
 package com.adsphere.service;
 
+import com.adsphere.domain.ActivityAction;
 import com.adsphere.domain.Bid;
 import com.adsphere.domain.BidStatus;
 import com.adsphere.domain.Campaign;
@@ -7,6 +8,7 @@ import com.adsphere.domain.CampaignStatus;
 import com.adsphere.domain.Deal;
 import com.adsphere.domain.DealStatus;
 import com.adsphere.domain.DealType;
+import com.adsphere.domain.EntityType;
 import com.adsphere.dto.BidRequest;
 import com.adsphere.dto.BidResponse;
 import com.adsphere.dto.DealResponse;
@@ -34,11 +36,17 @@ public class DealService {
   private final DealRepository deals;
   private final BidRepository bids;
   private final CampaignRepository campaigns;
+  private final ActivityService activityService;
 
-  public DealService(DealRepository deals, BidRepository bids, CampaignRepository campaigns) {
+  public DealService(
+      DealRepository deals,
+      BidRepository bids,
+      CampaignRepository campaigns,
+      ActivityService activityService) {
     this.deals = deals;
     this.bids = bids;
     this.campaigns = campaigns;
+    this.activityService = activityService;
   }
 
   @Transactional(readOnly = true)
@@ -89,6 +97,13 @@ public class DealService {
               "Bid rejected: $%s is below the floor price of $%s.",
               request.amount.toPlainString(), deal.getBidPrice().toPlainString());
     }
+    activityService.record(
+        ActivityAction.BID_PLACED,
+        EntityType.DEAL,
+        deal.getId(),
+        deal.getName(),
+        "Bid of " + request.amount.toPlainString() + " placed on deal '" + deal.getName() + "' by " + bidder,
+        bidder);
     return new BidResponse(bid.getId(), bid.getStatus(), bid.getAmount(), message, DealResponse.from(deal));
   }
 
