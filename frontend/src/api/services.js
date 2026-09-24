@@ -32,6 +32,10 @@ export const dealApi = {
   bid: (id, body) => api.post(`/api/deals/${id}/bids`, body),
 };
 
+export const activityApi = {
+  list: (params, signal) => api.get('/api/activity', params, signal),
+};
+
 export const settingsApi = {
   get: () => api.get('/api/settings'),
   update: (body) => api.put('/api/settings', body),

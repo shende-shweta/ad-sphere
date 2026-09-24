@@ -1,5 +1,6 @@
 package com.adsphere.service;
 
+import com.adsphere.domain.Action;
 import com.adsphere.domain.Bid;
 import com.adsphere.domain.BidStatus;
 import com.adsphere.domain.Campaign;
@@ -7,6 +8,7 @@ import com.adsphere.domain.CampaignStatus;
 import com.adsphere.domain.Deal;
 import com.adsphere.domain.DealStatus;
 import com.adsphere.domain.DealType;
+import com.adsphere.domain.EntityType;
 import com.adsphere.dto.BidRequest;
 import com.adsphere.dto.BidResponse;
 import com.adsphere.dto.DealResponse;
@@ -20,13 +22,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Inventory deals and bidding.
- *
- * <p>Each deal has a floor price (CPM). A bid at or above the floor wins immediately: the deal is
- * marked sold and the bidding campaign's ads are served on that inventory. Bids below the floor are
- * recorded as rejected.
- */
 @Service
 @Transactional
 public class DealService {
@@ -34,11 +29,17 @@ public class DealService {
   private final DealRepository deals;
   private final BidRepository bids;
   private final CampaignRepository campaigns;
+  private final ActivityService activityService;
 
-  public DealService(DealRepository deals, BidRepository bids, CampaignRepository campaigns) {
+  public DealService(
+      DealRepository deals,
+      BidRepository bids,
+      CampaignRepository campaigns,
+      ActivityService activityService) {
     this.deals = deals;
     this.bids = bids;
     this.campaigns = campaigns;
+    this.activityService = activityService;
   }
 
   @Transactional(readOnly = true)
@@ -89,6 +90,13 @@ public class DealService {
               "Bid rejected: $%s is below the floor price of $%s.",
               request.amount.toPlainString(), deal.getBidPrice().toPlainString());
     }
+    activityService.record(
+        Action.BID_PLACED,
+        EntityType.DEAL,
+        deal.getId(),
+        deal.getName(),
+        "Placed bid of $" + request.amount.toPlainString() + " on deal '" + deal.getName()
+            + "' for campaign '" + campaign.getName() + "'");
     return new BidResponse(bid.getId(), bid.getStatus(), bid.getAmount(), message, DealResponse.from(deal));
   }
 

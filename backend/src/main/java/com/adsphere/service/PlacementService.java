@@ -1,7 +1,9 @@
 package com.adsphere.service;
 
+import com.adsphere.domain.Action;
 import com.adsphere.domain.Audience;
 import com.adsphere.domain.AudienceStatus;
+import com.adsphere.domain.EntityType;
 import com.adsphere.domain.Placement;
 import com.adsphere.dto.PageResponse;
 import com.adsphere.dto.PlacementRequest;
@@ -20,10 +22,15 @@ public class PlacementService {
 
   private final PlacementRepository placements;
   private final AudienceRepository audiences;
+  private final ActivityService activityService;
 
-  public PlacementService(PlacementRepository placements, AudienceRepository audiences) {
+  public PlacementService(
+      PlacementRepository placements,
+      AudienceRepository audiences,
+      ActivityService activityService) {
     this.placements = placements;
     this.audiences = audiences;
+    this.activityService = activityService;
   }
 
   @Transactional(readOnly = true)
@@ -39,7 +46,14 @@ public class PlacementService {
   }
 
   public PlacementResponse create(PlacementRequest request) {
-    return PlacementResponse.from(createEntity(request));
+    Placement saved = createEntity(request);
+    activityService.record(
+        Action.CREATED,
+        EntityType.PLACEMENT,
+        saved.getId(),
+        saved.getName(),
+        "Created placement '" + saved.getName() + "'");
+    return PlacementResponse.from(saved);
   }
 
   Placement createEntity(PlacementRequest request) {

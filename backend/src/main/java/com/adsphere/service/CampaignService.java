@@ -1,6 +1,8 @@
 package com.adsphere.service;
 
+import com.adsphere.domain.Action;
 import com.adsphere.domain.Campaign;
+import com.adsphere.domain.EntityType;
 import com.adsphere.domain.Placement;
 import com.adsphere.dto.CampaignRequest;
 import com.adsphere.dto.CampaignResponse;
@@ -23,14 +25,17 @@ public class CampaignService {
   private final CampaignRepository campaigns;
   private final PlacementRepository placements;
   private final PlacementService placementService;
+  private final ActivityService activityService;
 
   public CampaignService(
       CampaignRepository campaigns,
       PlacementRepository placements,
-      PlacementService placementService) {
+      PlacementService placementService,
+      ActivityService activityService) {
     this.campaigns = campaigns;
     this.placements = placements;
     this.placementService = placementService;
+    this.activityService = activityService;
   }
 
   @Transactional(readOnly = true)
@@ -62,6 +67,12 @@ public class CampaignService {
     apply(campaign, request);
     campaign = campaigns.save(campaign);
     campaign.setCode(String.format("CMP%03d", campaign.getId()));
+    activityService.record(
+        Action.CREATED,
+        EntityType.CAMPAIGN,
+        campaign.getId(),
+        campaign.getName(),
+        "Created campaign '" + campaign.getName() + "'");
     return CampaignResponse.from(campaign);
   }
 
@@ -71,11 +82,21 @@ public class CampaignService {
       throw BusinessRuleException.field("name", "A campaign with this name already exists");
     }
     apply(campaign, request);
+    activityService.record(
+        Action.UPDATED,
+        EntityType.CAMPAIGN,
+        campaign.getId(),
+        campaign.getName(),
+        "Updated campaign '" + campaign.getName() + "'");
     return CampaignResponse.from(campaign);
   }
 
   public void delete(Long id) {
-    campaigns.delete(find(id));
+    Campaign campaign = find(id);
+    String name = campaign.getName();
+    campaigns.delete(campaign);
+    activityService.record(
+        Action.DELETED, EntityType.CAMPAIGN, id, name, "Deleted campaign '" + name + "'");
   }
 
   private void apply(Campaign campaign, CampaignRequest request) {

@@ -1,5 +1,6 @@
 package com.adsphere.web;
 
+import com.adsphere.domain.Action;
 import com.adsphere.domain.AdFormat;
 import com.adsphere.domain.AdPosition;
 import com.adsphere.domain.AudienceStatus;
@@ -9,6 +10,7 @@ import com.adsphere.domain.Country;
 import com.adsphere.domain.DealStatus;
 import com.adsphere.domain.DealType;
 import com.adsphere.domain.DeviceTargeting;
+import com.adsphere.domain.EntityType;
 import com.adsphere.domain.Labeled;
 import com.adsphere.domain.Objective;
 import com.adsphere.domain.Role;
@@ -24,7 +26,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Exposes enum values and labels so the UI never hard-codes them. */
 @RestController
 @RequestMapping("/api/lookups")
 public class LookupController {
@@ -45,6 +46,8 @@ public class LookupController {
     put("audienceStatuses", AudienceStatus.values());
     put("dealStatuses", DealStatus.values());
     put("roles", Role.values());
+    put("actions", Action.values());
+    put("entityTypes", EntityType.values());
   }
 
   private static <E extends Enum<E> & Labeled> void put(String key, E[] values) {
