@@ -11,6 +11,16 @@ export const maxLength = (value, max, label) =>
 export const minLength = (value, min, label) =>
   value && String(value).length < min ? `${label} must be at least ${min} characters` : undefined;
 
+export const integerRange = (value, min, max, label) => {
+  if (value === '' || value == null) return undefined;
+  const n = Number(value);
+  if (Number.isNaN(n) || !Number.isFinite(n)) return `${label} must be a number`;
+  if (n !== Math.floor(n)) return `${label} must be a whole number`;
+  if (n < min || n > max)
+    return `${label} must be between ${min.toLocaleString('en-US')} and ${max.toLocaleString('en-US')}`;
+  return undefined;
+};
+
 export const moneyRange = (value, min, max, label) => {
   if (value === '' || value == null) return undefined;
   const n = Number(value);
