@@ -1,8 +1,10 @@
 package com.adsphere.service;
 
+import com.adsphere.domain.Action;
 import com.adsphere.domain.Audience;
 import com.adsphere.domain.AudienceStatus;
 import com.adsphere.domain.AudienceType;
+import com.adsphere.domain.EntityType;
 import com.adsphere.dto.AudienceResponse;
 import com.adsphere.dto.PageResponse;
 import com.adsphere.repository.AudienceRepository;
@@ -17,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AudienceService {
 
   private final AudienceRepository audiences;
+  private final ActivityService activityService;
 
-  public AudienceService(AudienceRepository audiences) {
+  public AudienceService(AudienceRepository audiences, ActivityService activityService) {
     this.audiences = audiences;
+    this.activityService = activityService;
   }
 
   @Transactional(readOnly = true)
@@ -36,6 +40,12 @@ public class AudienceService {
     Audience audience =
         audiences.findById(id).orElseThrow(() -> new NotFoundException("Audience", id));
     audience.setStatus(status);
+    activityService.record(
+        Action.STATUS_CHANGED,
+        EntityType.AUDIENCE,
+        audience.getId(),
+        audience.getName(),
+        "Changed audience '" + audience.getName() + "' status to " + status.getLabel());
     return AudienceResponse.from(audience);
   }
 }

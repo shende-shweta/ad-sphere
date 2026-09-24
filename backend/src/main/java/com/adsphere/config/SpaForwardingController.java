@@ -3,10 +3,6 @@ package com.adsphere.config;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/**
- * When the built frontend is bundled into the jar (under classpath:/static), client-side routes
- * such as /campaigns/new must resolve to index.html.
- */
 @Controller
 public class SpaForwardingController {
 
@@ -17,6 +13,7 @@ public class SpaForwardingController {
     "/placements/**",
     "/audience/**",
     "/inventory/**",
+    "/activity/**",
     "/settings/**",
     "/help/**",
     "/profile/**"
