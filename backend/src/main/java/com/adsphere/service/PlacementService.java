@@ -1,7 +1,9 @@
 package com.adsphere.service;
 
+import com.adsphere.domain.ActivityAction;
 import com.adsphere.domain.Audience;
 import com.adsphere.domain.AudienceStatus;
+import com.adsphere.domain.EntityType;
 import com.adsphere.domain.Placement;
 import com.adsphere.dto.PageResponse;
 import com.adsphere.dto.PlacementRequest;
@@ -20,10 +22,15 @@ public class PlacementService {
 
   private final PlacementRepository placements;
   private final AudienceRepository audiences;
+  private final ActivityService activityService;
 
-  public PlacementService(PlacementRepository placements, AudienceRepository audiences) {
+  public PlacementService(
+      PlacementRepository placements,
+      AudienceRepository audiences,
+      ActivityService activityService) {
     this.placements = placements;
     this.audiences = audiences;
+    this.activityService = activityService;
   }
 
   @Transactional(readOnly = true)
@@ -63,6 +70,13 @@ public class PlacementService {
     p.setDeviceTargeting(request.deviceTargeting);
     p.setAdFormat(request.adFormat);
     p.setNotes(request.notes);
-    return placements.save(p);
+    Placement saved = placements.save(p);
+    activityService.record(
+        ActivityAction.CREATED,
+        EntityType.PLACEMENT,
+        saved.getId(),
+        saved.getName(),
+        "Placement '" + saved.getName() + "' created");
+    return saved;
   }
 }
