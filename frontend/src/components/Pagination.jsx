@@ -1,7 +1,17 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+const DEFAULT_SIZE_OPTIONS = [10, 25, 50, 100];
+
 /** Zero-based page navigation with a compact window of page numbers. */
-export default function Pagination({ page, totalPages, totalElements, size, onChange }) {
+export default function Pagination({
+  page,
+  totalPages,
+  totalElements,
+  size,
+  onChange,
+  onSizeChange,
+  sizeOptions = DEFAULT_SIZE_OPTIONS,
+}) {
   if (!totalPages) return null;
   const from = page * size + 1;
   const to = Math.min(totalElements, (page + 1) * size);
@@ -15,9 +25,27 @@ export default function Pagination({ page, totalPages, totalElements, size, onCh
 
   return (
     <div className="pagination">
-      <span className="pagination-info">
-        Showing {from}–{to} of {totalElements}
-      </span>
+      <div className="pagination-summary">
+        <span className="pagination-info">
+          Showing {from}–{to} of {totalElements}
+        </span>
+        {onSizeChange && (
+          <label className="pagination-size">
+            Rows per page
+            <select
+              className="input select"
+              value={size}
+              onChange={(e) => onSizeChange(Number(e.target.value))}
+            >
+              {sizeOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
       <nav className="pagination-controls" aria-label="Pagination">
         <button
           className="page-btn"

@@ -24,13 +24,14 @@ export default function AudienceListPage() {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: '', status: '' });
   const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
   const q = useDebounce(search);
 
   const { data, error, loading, reload } = usePagedList(audienceApi.list, {
     q,
     ...filters,
     page,
-    size: 5,
+    size,
   });
   const rows = data?.content || [];
   const isAdmin = can([ROLES.ADMIN]);
@@ -136,6 +137,10 @@ export default function AudienceListPage() {
               totalPages={data.totalPages}
               totalElements={data.totalElements}
               onChange={setPage}
+              onSizeChange={(s) => {
+                setSize(s);
+                setPage(0);
+              }}
             />
           </>
         )}

@@ -33,7 +33,7 @@ public class AudienceController {
       @RequestParam(required = false) String q,
       @RequestParam(required = false) AudienceType type,
       @RequestParam(required = false) AudienceStatus status,
-      @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
     return service.search(q, type, status, pageable);
   }
 

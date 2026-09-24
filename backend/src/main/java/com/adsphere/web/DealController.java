@@ -36,7 +36,7 @@ public class DealController {
       @RequestParam(required = false) String q,
       @RequestParam(required = false) DealType type,
       @RequestParam(required = false) DealStatus status,
-      @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
     return service.search(q, type, status, pageable);
   }
 

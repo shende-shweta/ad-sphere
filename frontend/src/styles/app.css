@@ -783,8 +783,26 @@ a.cell-title:hover {
   gap: 12px;
   padding-top: 16px;
 }
+.pagination-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 .pagination-info {
   color: var(--text-muted);
+  font-size: 13px;
+}
+.pagination-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.pagination-size .select {
+  height: 32px;
+  padding: 0 24px 0 8px;
   font-size: 13px;
 }
 .pagination-controls {

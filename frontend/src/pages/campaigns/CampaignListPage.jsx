@@ -18,7 +18,7 @@ import EmptyState from '../../components/EmptyState.jsx';
 import Spinner from '../../components/Spinner.jsx';
 import { formatCurrency, formatDate } from '../../utils/format.js';
 
-const PAGE_SIZE = 5;
+const DEFAULT_PAGE_SIZE = 10;
 const FILTER_KEYS = ['status', 'objective', 'name', 'from', 'to'];
 
 export default function CampaignListPage() {
@@ -35,6 +35,7 @@ export default function CampaignListPage() {
 
   const filters = Object.fromEntries(FILTER_KEYS.map((k) => [k, params.get(k) || '']));
   const page = Number(params.get('page') || 0);
+  const size = Number(params.get('size') || DEFAULT_PAGE_SIZE);
 
   const updateParams = useCallback(
     (changes) => {
@@ -60,7 +61,7 @@ export default function CampaignListPage() {
   }, [debouncedName]);
 
   const query = useMemo(
-    () => ({ ...filters, page, size: PAGE_SIZE, sort: 'id,asc' }),
+    () => ({ ...filters, page, size, sort: 'id,asc' }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [params.toString()],
   );
@@ -249,6 +250,7 @@ export default function CampaignListPage() {
               totalPages={data.totalPages}
               totalElements={data.totalElements}
               onChange={(p) => updateParams({ page: p ? String(p) : '' })}
+              onSizeChange={(s) => updateParams({ size: s === DEFAULT_PAGE_SIZE ? '' : String(s) })}
             />
           </>
         )}

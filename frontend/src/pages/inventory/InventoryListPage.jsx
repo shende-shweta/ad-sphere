@@ -24,10 +24,11 @@ export default function InventoryListPage() {
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: '', status: '' });
   const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
   const [bidDeal, setBidDeal] = useState(null);
   const q = useDebounce(search);
 
-  const { data, error, loading, reload } = usePagedList(dealApi.list, { q, ...filters, page, size: 5 });
+  const { data, error, loading, reload } = usePagedList(dealApi.list, { q, ...filters, page, size });
   const rows = data?.content || [];
   const canBid = can(EDIT_ROLES);
 
@@ -133,6 +134,10 @@ export default function InventoryListPage() {
               totalPages={data.totalPages}
               totalElements={data.totalElements}
               onChange={setPage}
+              onSizeChange={(s) => {
+                setSize(s);
+                setPage(0);
+              }}
             />
           </>
         )}
