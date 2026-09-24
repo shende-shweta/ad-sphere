@@ -1304,6 +1304,11 @@ a.cell-title:hover {
   margin: 8px 0 0;
 }
 
+/* ------------------------------------------------------------------ activity filters */
+.activity-filters {
+  margin-bottom: 4px;
+}
+
 /* ------------------------------------------------------------------ responsive */
 @media (max-width: 960px) {
   .sidebar {
@@ -1410,7 +1415,8 @@ a.cell-title:hover {
   }
   .table-cards td[data-label='Campaign'],
   .table-cards td[data-label='Deal'],
-  .table-cards td[data-label='Audience'] {
+  .table-cards td[data-label='Audience'],
+  .table-cards td[data-label='Entity'] {
     display: block;
     padding: 4px 90px 8px 0;
     margin-bottom: 4px;
@@ -1418,7 +1424,8 @@ a.cell-title:hover {
   }
   .table-cards td[data-label='Campaign']::before,
   .table-cards td[data-label='Deal']::before,
-  .table-cards td[data-label='Audience']::before {
+  .table-cards td[data-label='Audience']::before,
+  .table-cards td[data-label='Entity']::before {
     display: none;
   }
   .pagination {

@@ -10,6 +10,7 @@ import CampaignDetailPage from './pages/campaigns/CampaignDetailPage.jsx';
 import PlacementFormPage from './pages/placements/PlacementFormPage.jsx';
 import AudienceListPage from './pages/audience/AudienceListPage.jsx';
 import InventoryListPage from './pages/inventory/InventoryListPage.jsx';
+import ActivityListPage from './pages/activity/ActivityListPage.jsx';
 import SettingsPage from './pages/settings/SettingsPage.jsx';
 import SettingsSectionPage from './pages/settings/SettingsSectionPage.jsx';
 import HelpPage from './pages/help/HelpPage.jsx';
@@ -63,6 +64,7 @@ export default function App() {
         />
         <Route path="audience" element={<AudienceListPage />} />
         <Route path="inventory" element={<InventoryListPage />} />
+        <Route path="activity" element={<ActivityListPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="settings/:section" element={<SettingsSectionPage />} />
         <Route path="help" element={<HelpPage />} />
