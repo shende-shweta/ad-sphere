@@ -89,9 +89,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // Role rules are enforced here (before body validation) and again with @PreAuthorize.
         .antMatchers(HttpMethod.DELETE, "/api/campaigns/**")
         .hasRole("ADMIN")
-        .antMatchers(HttpMethod.POST, "/api/campaigns/**", "/api/placements/**", "/api/deals/**")
+        .antMatchers(
+            HttpMethod.POST,
+            "/api/campaigns/**",
+            "/api/placements/**",
+            "/api/deals/**",
+            "/api/audiences/**")
         .hasAnyRole("ADMIN", "MANAGER")
-        .antMatchers(HttpMethod.PUT, "/api/campaigns/**")
+        .antMatchers(HttpMethod.PUT, "/api/campaigns/**", "/api/audiences/**")
         .hasAnyRole("ADMIN", "MANAGER")
         .antMatchers(HttpMethod.PUT, "/api/settings/**")
         .hasRole("ADMIN")

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Power } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Pencil, Plus, Power } from 'lucide-react';
 import { audienceApi } from '../../api/services.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
-import { ROLES } from '../../auth/roles.js';
+import { EDIT_ROLES, ROLES } from '../../auth/roles.js';
 import { useLookups } from '../../context/LookupsContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useDebounce } from '../../hooks/useDebounce.js';
@@ -21,6 +22,7 @@ export default function AudienceListPage() {
   const lookups = useLookups();
   const toast = useToast();
   const { can } = useAuth();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ type: '', status: '' });
   const [page, setPage] = useState(0);
@@ -35,6 +37,7 @@ export default function AudienceListPage() {
   });
   const rows = data?.content || [];
   const isAdmin = can([ROLES.ADMIN]);
+  const canEdit = can(EDIT_ROLES);
 
   const setFilter = (name, value) => {
     setFilters((f) => ({ ...f, [name]: value }));
@@ -79,6 +82,11 @@ export default function AudienceListPage() {
                 setPage(0);
               }}
             />
+            {canEdit && (
+              <button className="btn btn-primary" onClick={() => navigate('/audience/new')}>
+                <Plus size={16} /> Create Audience
+              </button>
+            )}
           </>
         }
       />
@@ -117,6 +125,12 @@ export default function AudienceListPage() {
                         <ActionMenu
                           label={`Actions for ${a.name}`}
                           items={[
+                            {
+                              label: 'Edit',
+                              icon: Pencil,
+                              hidden: !canEdit,
+                              onClick: () => navigate(`/audience/${a.id}/edit`),
+                            },
                             {
                               label: a.status === 'ACTIVE' ? 'Deactivate' : 'Activate',
                               icon: Power,

@@ -22,6 +22,14 @@ export const moneyRange = (value, min, max, label) => {
   return undefined;
 };
 
+export const integerRange = (value, min, max, label) => {
+  if (value === '' || value == null) return undefined;
+  const n = Number(value);
+  if (Number.isNaN(n) || !Number.isInteger(n) || n < min || n > max)
+    return `${label} must be between ${min.toLocaleString('en-US')} and ${max.toLocaleString('en-US')}`;
+  return undefined;
+};
+
 export const dateOrder = (start, end) =>
   start && end && end < start ? 'End date must be on or after the start date' : undefined;
 
